@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    wiimote_converter_lib::run()
+    wiimote_receiver_lib::run()
 }
