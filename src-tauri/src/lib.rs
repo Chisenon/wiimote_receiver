@@ -3,7 +3,7 @@ use std::thread;
 use std::time::Duration;
 use wiimote_rs::prelude::*;
 use wiimote_rs::input::{InputReport, ButtonData};
-use wiimote_rs::output::{OutputReport, DataReporingMode};
+use wiimote_rs::output::{OutputReport, DataReporingMode, PlayerLedFlags};
 use serde::{Serialize, Deserialize};
 use tauri::Emitter;
 
@@ -54,6 +54,7 @@ fn handle_wiimote(
             continuous: false,
             mode: 0x31,
         }))?;
+        wiimote.write(&OutputReport::PlayerLed(PlayerLedFlags::LED_1 | PlayerLedFlags::LED_3))?;
     }
 
     let acc_calibration = device
