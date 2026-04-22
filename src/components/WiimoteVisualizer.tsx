@@ -1,4 +1,4 @@
-import { Canvas } from "@react-three/fiber";
+import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import { useRef, useEffect } from "react";
 import * as THREE from "three";
@@ -8,7 +8,15 @@ interface WiimoteData {
   acc_x: number;
   acc_y: number;
   acc_z: number;
-  battery: number;
+  gyro_yaw: number;
+  gyro_roll: number;
+  gyro_pitch: number;
+  quat_w: number;
+  quat_x: number;
+  quat_y: number;
+  quat_z: number;
+  quat_valid: boolean;
+  motion_plus_active: boolean;
 }
 
 interface VisualizerProps {
@@ -17,26 +25,44 @@ interface VisualizerProps {
 
 function ColoredBox({ wiimoteData }: VisualizerProps) {
   const meshRef = useRef<THREE.Group>(null);
+  const targetQuaternionRef = useRef(new THREE.Quaternion(0, 0, 0, 1));
 
   useEffect(() => {
-    if (meshRef.current) {
-      // Calculate rotation from accelerometer data
-      // When Wiimote is flat on table: acc_x ≈ 0, acc_y ≈ 0, acc_z ≈ 1g
-      // We want Z-axis pointing up (vertically), so:
-      // - Use atan2 to get roll and pitch from accelerometer
-      
-      const roll = Math.atan2(wiimoteData.acc_y, wiimoteData.acc_z);
-      const pitch = Math.atan2(-wiimoteData.acc_x, 
-                               Math.sqrt(wiimoteData.acc_y ** 2 + wiimoteData.acc_z ** 2));
-
-      meshRef.current.rotation.x = -roll;
-      meshRef.current.rotation.z = pitch;
-      meshRef.current.rotation.y = 0; // No yaw from accelerometer alone
+    // Quaternion を使用して正確な回転を適用
+    // lib.rs から送信された quaternion: quat_w, quat_x, quat_y, quat_z
+    if (wiimoteData.quat_valid) {
+      const q = new THREE.Quaternion(
+        wiimoteData.quat_x,
+        wiimoteData.quat_y,
+        wiimoteData.quat_z,
+        wiimoteData.quat_w
+      );
+      targetQuaternionRef.current.copy(q);
     }
   }, [wiimoteData]);
 
+  useFrame(() => {
+    if (!meshRef.current) {
+      return;
+    }
+    // Quaternion を smooth に補間
+    const currentQuat = meshRef.current.quaternion;
+    currentQuat.slerp(targetQuaternionRef.current, 0.15);
+  });
+
   return (
     <group ref={meshRef}>
+      {/* 
+        軸定義（Wiimote フレーム）:
+        - X軸 (赤): 左右（横方向）
+        - Y軸 (緑): 前後（奥行き方向）
+        - Z軸 (青): 上下（縦方向）
+        
+        Quaternion は lib.rs の complementary filter で計算され、
+        加速度計データとジャイロデータを融合している。
+        これにより gimbal lock を回避し、正確な3D回転を実現。
+      */}
+      
       {/* Z軸 (青) - 上下の面 */}
       {/* 上面 - 明るい青 */}
       <mesh position={[0, 0, 2]}>

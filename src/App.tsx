@@ -9,6 +9,15 @@ interface WiimoteData {
   acc_x: number;
   acc_y: number;
   acc_z: number;
+  gyro_yaw: number;
+  gyro_roll: number;
+  gyro_pitch: number;
+  quat_w: number;
+  quat_x: number;
+  quat_y: number;
+  quat_z: number;
+  quat_valid: boolean;
+  motion_plus_active: boolean;
 }
 
 function App() {
@@ -17,15 +26,23 @@ function App() {
     acc_x: 0,
     acc_y: 0,
     acc_z: 0,
-    battery: 0,
+    gyro_yaw: 0,
+    gyro_roll: 0,
+    gyro_pitch: 0,
+    quat_w: 1,
+    quat_x: 0,
+    quat_y: 0,
+    quat_z: 0,
+    quat_valid: false,
+    motion_plus_active: false,
   });
 
   useEffect(() => {
-    let unlistenPromise: Promise<() => void> | null = null;
+    let unlisten: (() => void) | null = null;
 
     const setupListener = async () => {
       try {
-        unlistenPromise = await listen<WiimoteData>("wiimote-data", (event) => {
+        unlisten = await listen<WiimoteData>("wiimote-data", (event) => {
           setWiimoteData(event.payload);
         });
         console.log("Wiimote listener started");
@@ -37,8 +54,8 @@ function App() {
     setupListener();
 
     return () => {
-      if (unlistenPromise) {
-        unlistenPromise.then((unlisten) => unlisten());
+      if (unlisten) {
+        unlisten();
       }
     };
   }, []);
