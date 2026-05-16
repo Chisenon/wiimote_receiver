@@ -1,4 +1,4 @@
-interface WiimoteData {
+﻿interface WiimoteData {
   buttons: string[];
   acc_x: number;
   acc_y: number;
@@ -44,7 +44,7 @@ function quaternionToEuler(qw: number, qx: number, qy: number, qz: number): { ro
   };
 }
 
-const allButtons = ["A", "B", "1", "2", "+", "-", "HOME", "↑", "↓", "←", "→"];
+const allButtons = ["A", "B", "1", "2", "+", "-", "HOME", "UP", "DOWN", "LEFT", "RIGHT"];
 
 export default function ButtonDisplay({ wiimoteData }: ButtonDisplayProps) {
   const isPressed = (buttonName: string) => wiimoteData.buttons.includes(buttonName);
@@ -68,34 +68,34 @@ export default function ButtonDisplay({ wiimoteData }: ButtonDisplayProps) {
       </div>
       <div className="info-panel">
         <div className="info-column">
-          <div className="info-column-title">Tilt (傾き)</div>
+          <div className="info-column-title">Tilt </div>
           <div className="info-item">
-            <span className="label">X (赤):</span>
+            <span className="label">X:</span>
             <span className="value">{wiimoteData.acc_x.toFixed(2)}g</span>
           </div>
           <div className="info-item">
-            <span className="label">Z (緑):</span>
+            <span className="label">Z:</span>
             <span className="value">{wiimoteData.acc_z.toFixed(2)}g</span>
           </div>
           <div className="info-item">
-            <span className="label">Y (青):</span>
+            <span className="label">Y:</span>
             <span className="value">{wiimoteData.acc_y.toFixed(2)}g</span>
           </div>
         </div>
 
         <div className="info-column">
-          <div className="info-column-title">Orientation (角度)</div>
+          <div className="info-column-title">Orientation</div>
           <div className="info-item">
             <span className="label">Roll (X):</span>
-            <span className="value">{euler.roll.toFixed(1)}°</span>
+            <span className="value">{euler.roll.toFixed(1)}</span>
           </div>
           <div className="info-item">
             <span className="label">Pitch (Y):</span>
-            <span className="value">{euler.pitch.toFixed(1)}°</span>
+            <span className="value">{euler.pitch.toFixed(1)}</span>
           </div>
           <div className="info-item">
             <span className="label">Yaw (Z):</span>
-            <span className="value">{euler.yaw.toFixed(1)}°</span>
+            <span className="value">{euler.yaw.toFixed(1)}</span>
           </div>
           <div className="info-item">
             <span className="label">Status:</span>
@@ -108,3 +108,4 @@ export default function ButtonDisplay({ wiimoteData }: ButtonDisplayProps) {
     </div>
   );
 }
+

@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, type ChangeEvent } from "react";
 import { listen } from "@tauri-apps/api/event";
+import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import WiimoteVisualizer from "./components/WiimoteVisualizer";
 import ButtonDisplay from "./components/ButtonDisplay";
@@ -21,6 +22,9 @@ interface WiimoteData {
 }
 
 function App() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [configStatus, setConfigStatus] = useState<string>("config: ready");
+  const [configPath, setConfigPath] = useState<string>("");
   const [wiimoteData, setWiimoteData] = useState<WiimoteData>({
     buttons: [],
     acc_x: 0,
@@ -60,8 +64,74 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    const setupConfigPath = async () => {
+      try {
+        const path = await invoke<string>("get_config_path");
+        setConfigPath(path);
+      } catch (error) {
+        console.error("Failed to get config path:", error);
+      }
+    };
+    setupConfigPath();
+  }, []);
+
+  const handleCreateConfig = async () => {
+    setConfigStatus("config: creating...");
+    try {
+      const path = await invoke<string>("ensure_config_file");
+      setConfigPath(path);
+      setConfigStatus("config: file ready");
+    } catch (error) {
+      console.error(error);
+      setConfigStatus("config: create failed");
+    }
+  };
+
+  const handlePickConfig = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleLoadConfigFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setConfigStatus(`config: loading ${file.name}...`);
+    try {
+      const json = await file.text();
+      await invoke<string>("import_config_from_json", { json });
+      const path = await invoke<string>("get_config_path");
+      setConfigPath(path);
+      setConfigStatus("config: loaded and applied");
+    } catch (error) {
+      console.error(error);
+      setConfigStatus("config: load failed");
+    } finally {
+      event.target.value = "";
+    }
+  };
+
   return (
     <div className="app">
+      <div className="hotbar">
+        <div className="hotbar-left">
+          <button className="hotbar-btn" onClick={handlePickConfig}>
+            Load Config
+          </button>
+          <button className="hotbar-btn secondary" onClick={handleCreateConfig}>
+            Create Config
+          </button>
+          <span className="hotbar-status">{configStatus}</span>
+        </div>
+        <div className="hotbar-path">{configPath}</div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".json,application/json"
+          className="hidden-file-input"
+          onChange={handleLoadConfigFile}
+        />
+      </div>
       <div className="visualizer-container">
         <WiimoteVisualizer wiimoteData={wiimoteData} />
       </div>

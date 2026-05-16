@@ -1,0 +1,35 @@
+[package]
+name = "wiimote-rs"
+description = "Rust library to communicate with Wii remotes"
+version = "0.2.0"
+edition = "2021"
+license = "MIT"
+authors = ["cesmec"]
+repository = "https://github.com/cesmec/wiimote-rs"
+readme = "README.md"
+exclude = ["/.github"]
+
+[dependencies]
+bitflags = "2.4"
+crc32fast = "1.3"
+crossbeam-channel = "0.5"
+once_cell = "1.19.0"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+nix = "0.28.0"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+windows = { version = "0.54.0", features = [
+    "Devices_Bluetooth",
+    "Win32_Devices_Bluetooth",
+    "Win32_Devices_DeviceAndDriverInstallation",
+    "Win32_Devices_HumanInterfaceDevice",
+    "Win32_Globalization",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_IO",
+    "Win32_System_Threading",
+] }
+
+[target.'cfg(target_os = "linux")'.build-dependencies]
+bindgen = "0.69.4"

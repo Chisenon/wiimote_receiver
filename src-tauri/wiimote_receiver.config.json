@@ -1,0 +1,23 @@
+{
+  "mouse_look": {
+    "roll_deadzone_deg": 10.0,
+    "roll_speed_pixels_per_deg": 0.1,
+    "roll_max_pixels_per_frame": 10,
+    "roll_offset_smoothing_alpha": 0.25,
+    "roll_speed_exponent": 1.2,
+    "roll_invert_x": false
+  },
+  "button_bindings": {
+    "A": "Control",
+    "HOME": "Escape",
+    "-": "Backspace",
+    "UP": "LeftArrow",
+    "+": "Return",
+    "LEFT": "DownArrow",
+    "B": "Space",
+    "RIGHT": "UpArrow",
+    "DOWN": "RightArrow",
+    "1": "S",
+    "2": "W"
+  }
+}
