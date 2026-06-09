@@ -6,7 +6,7 @@ Wiimoteの加速度センサー・ジャイロセンサー（MotionPlus）のデ
 
 ## Demo
 
-<video src="https://chisenon.github.io/storage/MCwii.mp4" controls width="100%"></video>
+https://github.com/user-attachments/assets/5843c6cb-e876-4629-8419-a0c6f9f95f6e
 
 ## Features
 
